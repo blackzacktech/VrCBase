@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Root Directory Overview</title>
+    <title>Directory Viewer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -36,86 +36,57 @@
         .image {
             color: #28a745;
         }
-        button {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #0056b3;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #004099;
-        }
     </style>
 </head>
 <body>
-    <h1>Root Directory Overview</h1>
+    <h1>Directory Viewer</h1>
     <div class="container">
-        <button id="loadButton">Select Directory</button>
+        <h2>Select a Directory:</h2>
+        <input type="file" id="fileInput" webkitdirectory directory multiple>
         <h2>Folders:</h2>
-        <ul id="folders">
-            <!-- Folder data will be inserted here -->
-        </ul>
+        <ul id="folders"></ul>
         <h2>Images:</h2>
-        <ul id="images">
-            <!-- Image data will be inserted here -->
-        </ul>
+        <ul id="images"></ul>
     </div>
 
     <script>
-        document.getElementById('loadButton').addEventListener('click', async () => {
-            try {
-                // Request directory access
-                const rootHandle = await window.showDirectoryPicker();
-                const folders = [];
-                const images = [];
-                const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+        const fileInput = document.getElementById('fileInput');
+        const foldersContainer = document.getElementById('folders');
+        const imagesContainer = document.getElementById('images');
 
-                // Recursive function to traverse directories
-                async function traverseDirectory(handle, path = '') {
-                    for await (const entry of handle.values()) {
-                        if (entry.kind === 'directory') {
-                            const folderPath = path ? `${path}/${entry.name}` : entry.name;
-                            folders.push(folderPath);
-                            await traverseDirectory(entry, folderPath);
-                        } else if (entry.kind === 'file') {
-                            const extension = entry.name.split('.').pop().toLowerCase();
-                            if (imageExtensions.includes(extension)) {
-                                const filePath = path ? `${path}/${entry.name}` : entry.name;
-                                images.push(filePath);
-                            }
-                        }
-                    }
+        fileInput.addEventListener('change', (event) => {
+            const folders = new Set();
+            const images = [];
+            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+
+            Array.from(event.target.files).forEach(file => {
+                const pathParts = file.webkitRelativePath.split('/');
+                if (pathParts.length > 1) {
+                    folders.add(pathParts.slice(0, -1).join('/'));
                 }
+                const extension = file.name.split('.').pop().toLowerCase();
+                if (imageExtensions.includes(extension)) {
+                    images.push(file.webkitRelativePath);
+                }
+            });
 
-                await traverseDirectory(rootHandle);
+            // Display folders
+            foldersContainer.innerHTML = '';
+            folders.forEach(folder => {
+                const li = document.createElement('li');
+                li.textContent = folder;
+                li.classList.add('folder');
+                foldersContainer.appendChild(li);
+            });
 
-                // Display folders
-                const foldersContainer = document.getElementById('folders');
-                foldersContainer.innerHTML = '';
-                folders.forEach(folder => {
-                    const li = document.createElement('li');
-                    li.textContent = folder;
-                    li.classList.add('folder');
-                    foldersContainer.appendChild(li);
-                });
-
-                // Display images
-                const imagesContainer = document.getElementById('images');
-                imagesContainer.innerHTML = '';
-                images.forEach(image => {
-                    const li = document.createElement('li');
-                    li.textContent = image;
-                    li.classList.add('image');
-                    imagesContainer.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error accessing the file system:', error);
-            }
+            // Display images
+            imagesContainer.innerHTML = '';
+            images.forEach(image => {
+                const li = document.createElement('li');
+                li.textContent = image;
+                li.classList.add('image');
+                imagesContainer.appendChild(li);
+            });
         });
     </script>
 </body>
