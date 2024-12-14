@@ -36,11 +36,26 @@
         .image {
             color: #28a745;
         }
+        button {
+            display: block;
+            margin: 20px auto;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #004099;
+        }
     </style>
 </head>
 <body>
     <h1>Root Directory Overview</h1>
     <div class="container">
+        <button id="loadButton">Select Directory</button>
         <h2>Folders:</h2>
         <ul id="folders">
             <!-- Folder data will be inserted here -->
@@ -52,7 +67,7 @@
     </div>
 
     <script>
-        async function loadDirectory() {
+        document.getElementById('loadButton').addEventListener('click', async () => {
             try {
                 // Request directory access
                 const rootHandle = await window.showDirectoryPicker();
@@ -81,6 +96,7 @@
 
                 // Display folders
                 const foldersContainer = document.getElementById('folders');
+                foldersContainer.innerHTML = '';
                 folders.forEach(folder => {
                     const li = document.createElement('li');
                     li.textContent = folder;
@@ -90,6 +106,7 @@
 
                 // Display images
                 const imagesContainer = document.getElementById('images');
+                imagesContainer.innerHTML = '';
                 images.forEach(image => {
                     const li = document.createElement('li');
                     li.textContent = image;
@@ -99,10 +116,7 @@
             } catch (error) {
                 console.error('Error accessing the file system:', error);
             }
-        }
-
-        // Initialize loading
-        loadDirectory();
+        });
     </script>
 </body>
 </html>
