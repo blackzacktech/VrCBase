@@ -26,7 +26,7 @@ def list_folders_and_images(root_dir=".", ignore_list=None):
     return {"folders": folders, "images": images}
 
 root_directory = "."  # Specify root directory here
-ignore_list = [".git", ".github", "index.html"]  # Add paths to ignore here
+ignore_list = ["todo.md", ".git", ".github", "index.html"]  # Add paths to ignore here
 data = list_folders_and_images(root_directory, ignore_list)
 
 # Save to a JSON file
