@@ -8,11 +8,17 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            background-color: #f9f9f9;
+            background-color: #e0e0e0; /* Grau Hintergrund */
             color: #333;
         }
         h1 {
-            text-align: center;
+            display: inline-block;
+            vertical-align: middle;
+            margin-left: 20px;
+        }
+        .header {
+            display: flex;
+            align-items: center;
         }
         .container {
             max-width: 800px;
@@ -42,15 +48,20 @@
             display: block;
             margin: 10px 0;
         }
+        .logo {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+        }
     </style>
 </head>
 <body>
-    <h1>Directory Viewer</h1>
+    <div class="header">
+        <img src="/Logos/65th.png" alt="Logo" class="logo">
+        <h1>Directory Viewer</h1>
+    </div>
     <div class="container">
-        <h2>Folders:</h2>
-        <ul id="folders"></ul>
-        <h2>Images:</h2>
-        <ul id="images"></ul>
+        <ul id="directory-viewer"></ul>
     </div>
 
     <script>
@@ -58,25 +69,37 @@
             fetch('data.json')
                 .then(response => response.json())
                 .then(data => {
-                    const foldersContainer = document.getElementById('folders');
-                    const imagesContainer = document.getElementById('images');
+                    const directoryViewer = document.getElementById('directory-viewer');
 
-                    // Display folders
+                    // Group images by folder
+                    const folderMap = {};
+                    data.images.forEach(image => {
+                        const folder = image.substring(0, image.lastIndexOf('/'));
+                        if (!folderMap[folder]) {
+                            folderMap[folder] = [];
+                        }
+                        folderMap[folder].push(image);
+                    });
+
+                    // Display folders and images
                     data.folders.sort().forEach(folder => {
                         const li = document.createElement('li');
                         li.textContent = folder;
                         li.classList.add('folder');
-                        foldersContainer.appendChild(li);
-                    });
+                        directoryViewer.appendChild(li);
 
-                    // Display images
-                    data.images.sort().forEach(image => {
-                        const li = document.createElement('li');
-                        li.classList.add('image');
-                        const img = document.createElement('img');
-                        img.src = image;
-                        li.appendChild(img);
-                        imagesContainer.appendChild(li);
+                        if (folderMap[folder]) {
+                            const ul = document.createElement('ul');
+                            folderMap[folder].sort().forEach(image => {
+                                const imgLi = document.createElement('li');
+                                imgLi.classList.add('image');
+                                const img = document.createElement('img');
+                                img.src = image;
+                                imgLi.appendChild(img);
+                                ul.appendChild(imgLi);
+                            });
+                            directoryViewer.appendChild(ul);
+                        }
                     });
                 })
                 .catch(error => console.error('Error loading data:', error));
