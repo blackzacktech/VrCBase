@@ -36,13 +36,17 @@
         .image {
             color: #28a745;
         }
+        .image img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <h1>Directory Viewer</h1>
     <div class="container">
-        <h2>Select a Directory:</h2>
-        <input type="file" id="fileInput" webkitdirectory directory multiple>
         <h2>Folders:</h2>
         <ul id="folders"></ul>
         <h2>Images:</h2>
@@ -50,43 +54,32 @@
     </div>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const foldersContainer = document.getElementById('folders');
-        const imagesContainer = document.getElementById('images');
+        document.addEventListener('DOMContentLoaded', () => {
+            fetch('data.json')
+                .then(response => response.json())
+                .then(data => {
+                    const foldersContainer = document.getElementById('folders');
+                    const imagesContainer = document.getElementById('images');
 
-        fileInput.addEventListener('change', (event) => {
-            const folders = new Set();
-            const images = [];
-            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+                    // Display folders
+                    data.folders.sort().forEach(folder => {
+                        const li = document.createElement('li');
+                        li.textContent = folder;
+                        li.classList.add('folder');
+                        foldersContainer.appendChild(li);
+                    });
 
-            Array.from(event.target.files).forEach(file => {
-                const pathParts = file.webkitRelativePath.split('/');
-                if (pathParts.length > 1) {
-                    folders.add(pathParts.slice(0, -1).join('/'));
-                }
-                const extension = file.name.split('.').pop().toLowerCase();
-                if (imageExtensions.includes(extension)) {
-                    images.push(file.webkitRelativePath);
-                }
-            });
-
-            // Display folders
-            foldersContainer.innerHTML = '';
-            folders.forEach(folder => {
-                const li = document.createElement('li');
-                li.textContent = folder;
-                li.classList.add('folder');
-                foldersContainer.appendChild(li);
-            });
-
-            // Display images
-            imagesContainer.innerHTML = '';
-            images.forEach(image => {
-                const li = document.createElement('li');
-                li.textContent = image;
-                li.classList.add('image');
-                imagesContainer.appendChild(li);
-            });
+                    // Display images
+                    data.images.sort().forEach(image => {
+                        const li = document.createElement('li');
+                        li.classList.add('image');
+                        const img = document.createElement('img');
+                        img.src = image;
+                        li.appendChild(img);
+                        imagesContainer.appendChild(li);
+                    });
+                })
+                .catch(error => console.error('Error loading data:', error));
         });
     </script>
 </body>
