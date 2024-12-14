@@ -1,0 +1,29 @@
+{
+    "folders": [
+        "Besprechungsraum",
+        "Office",
+        "Portrait",
+        "Propaganda",
+        "Werbung",
+        "Office/Hound",
+        "Office/Mirage",
+        "Office/Wildfire"
+    ],
+    "images": [
+        "Besprechungsraum/Aktiv.png",
+        "Office/Mirage/VRChat_2024-11-19_22-00-21.png",
+        "Office/Mirage/VRChat_2024-11-27_22-26-53.png",
+        "Office/Mirage/VRChat_2024-12-04_23-01-49.png",
+        "Office/Mirage/VRChat_2024-12-09_22-25-09.751_1920x1080.png",
+        "Office/Mirage/VRChat_2024-12-12_20-48-20.965_1920x1080.png",
+        "Office/Mirage/VRChat_2024-12-14_00-40-26.760_1920x1080.png",
+        "Portrait/Hound.png",
+        "Portrait/HoundFoxCat.jpg",
+        "Portrait/HoundMirageRed.png",
+        "Portrait/Mirage.png",
+        "Propaganda/01.png",
+        "Werbung/01.png",
+        "Werbung/02.png",
+        "Werbung/the65th.png"
+    ]
+}

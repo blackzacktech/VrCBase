@@ -1,2 +1,0 @@
-User-agent: *
-Disallow: / # Verhindert Tracking in öffentlichen Crawls
