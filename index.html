@@ -3,20 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Directory Viewer</title>
+    <title>Web-Root Explorer</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            line-height: 1.6;
             margin: 20px;
-            background-color: #f9f9f9;
-            color: #333;
         }
         h1 {
-            text-align: center;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
+            font-size: 24px;
         }
         ul {
             list-style-type: none;
@@ -24,70 +19,76 @@
         }
         li {
             margin: 5px 0;
-            padding: 5px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
         }
         .folder {
             font-weight: bold;
-            color: #0056b3;
         }
-        .image {
-            color: #28a745;
+        img {
+            max-width: 150px;
+            max-height: 150px;
+            margin: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-    <h1>Directory Viewer</h1>
-    <div class="container">
-        <h2>Select a Directory:</h2>
-        <input type="file" id="fileInput" webkitdirectory directory multiple>
-        <h2>Folders:</h2>
-        <ul id="folders"></ul>
-        <h2>Images:</h2>
-        <ul id="images"></ul>
-    </div>
+    <h1>Web-Root Explorer</h1>
+    <p>Dies ist eine Übersicht über alle Ordner und Bilder im Web-Root-Verzeichnis:</p>
+    <div id="content"></div>
 
     <script>
-        const fileInput = document.getElementById('fileInput');
-        const foldersContainer = document.getElementById('folders');
-        const imagesContainer = document.getElementById('images');
+        // Funktion, um Dateien und Ordner zu laden
+        async function fetchDirectory(path) {
+            const response = await fetch(path);
+            if (!response.ok) {
+                console.error(`Fehler beim Laden des Pfads: ${path}`);
+                return [];
+            }
 
-        fileInput.addEventListener('change', (event) => {
-            const folders = new Set();
-            const images = [];
-            const imageExtensions = ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'];
+            const text = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(text, 'text/html');
+            const links = Array.from(doc.querySelectorAll('a'));
 
-            Array.from(event.target.files).forEach(file => {
-                const pathParts = file.webkitRelativePath.split('/');
-                if (pathParts.length > 1) {
-                    folders.add(pathParts.slice(0, -1).join('/'));
+            return links
+                .map(link => link.getAttribute('href'))
+                .filter(href => href !== '../'); // Eliminiere den Link zum übergeordneten Verzeichnis
+        }
+
+        async function loadContent(path = './', container = document.getElementById('content')) {
+            const items = await fetchDirectory(path);
+
+            const ul = document.createElement('ul');
+
+            for (const item of items) {
+                const fullPath = path + item;
+
+                // Prüfe, ob es ein Bild ist
+                if (item.match(/\.(jpg|jpeg|png|gif|webp)$/i)) {
+                    const img = document.createElement('img');
+                    img.src = fullPath;
+                    ul.appendChild(img);
+                } 
+                // Prüfe, ob es ein Ordner ist
+                else if (!item.includes('.')) {
+                    const li = document.createElement('li');
+                    li.className = 'folder';
+                    li.textContent = item;
+                    ul.appendChild(li);
+
+                    // Unterordner-Inhalte laden
+                    const subUl = document.createElement('ul');
+                    li.appendChild(subUl);
+                    await loadContent(fullPath, subUl);
                 }
-                const extension = file.name.split('.').pop().toLowerCase();
-                if (imageExtensions.includes(extension)) {
-                    images.push(file.webkitRelativePath);
-                }
-            });
+            }
 
-            // Display folders
-            foldersContainer.innerHTML = '';
-            folders.forEach(folder => {
-                const li = document.createElement('li');
-                li.textContent = folder;
-                li.classList.add('folder');
-                foldersContainer.appendChild(li);
-            });
+            container.appendChild(ul);
+        }
 
-            // Display images
-            imagesContainer.innerHTML = '';
-            images.forEach(image => {
-                const li = document.createElement('li');
-                li.textContent = image;
-                li.classList.add('image');
-                imagesContainer.appendChild(li);
-            });
-        });
+        // Starte mit dem Laden des Web-Roots
+        loadContent();
     </script>
 </body>
 </html>
